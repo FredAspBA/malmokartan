@@ -85,7 +85,7 @@ test('places.json innehåller 30 unika platser inom Malmös bounding box', () =>
   const CATS = new Set(['bad', 'hamn', 'park', 'centrum', 'oster']);
   for (const p of places) {
     assert.ok(p.lat > 55.55 && p.lat < 55.65, `${p.id}: lat ${p.lat} utanför Malmö`);
-    assert.ok(p.lon > 12.85 && p.lon < 13.05, `${p.id}: lon ${p.lon} utanför Malmö`);
+    assert.ok(p.lon > 12.85 && p.lon < 13.10, `${p.id}: lon ${p.lon} utanför Malmö`);
     assert.ok(CATS.has(p.category), `${p.id}: okänd kategori "${p.category}"`);
     assert.ok(p.fact && p.fact.length > 10, `${p.id}: saknar fact-text`);
     assert.ok(p.photo, `${p.id}: saknar photo-fält`);

@@ -4,20 +4,28 @@ import {
   haversineMeters, buildGraph, shortestPath, kShortest, meaningfulRoutes, isWithinTolerance
 } from './routing.mjs';
 
-// Fyra platser i en diamant: två vägar mellan a och d, en av dem kort.
+// Fem platser: en kort väg a->b->d, och en tydligt längre omväg a->c->e->d
+// (helt separata noder/kanter, inte parallella kanter mellan samma två
+// platser — parallella kanter med samma from/to kollapsar till samma
+// nodsekvens i Yens algoritm och går aldrig att skilja åt som "olika
+// rutter", oavsett hur långa de är).
 const places = [
-  { id: 'a', lat: 55.60, lon: 13.00 },
-  { id: 'b', lat: 55.61, lon: 13.00 },
-  { id: 'c', lat: 55.60, lon: 13.02 },
-  { id: 'd', lat: 55.61, lon: 13.02 }
+  { id: 'a', lat: 55.600, lon: 13.000 },
+  { id: 'b', lat: 55.605, lon: 13.000 },
+  { id: 'd', lat: 55.610, lon: 13.000 },
+  { id: 'c', lat: 55.600, lon: 13.030 },
+  { id: 'e', lat: 55.610, lon: 13.030 }
 ];
 const edges = [
   { from: 'a', to: 'b', via: 'längs korta vägen' },
   { from: 'b', to: 'd', via: 'längs korta vägen' },
   { from: 'a', to: 'c', via: 'genom omvägen' },
-  { from: 'c', to: 'd', via: 'genom omvägen' },
-  { from: 'c', to: 'd', via: 'via en tredje, mycket längre väg' }
+  { from: 'c', to: 'e', via: 'genom omvägen' },
+  { from: 'e', to: 'd', via: 'genom omvägen' }
 ];
+// Kort väg (a-b-d) ≈ 1.11 km fågelvägen * 1.15 ≈ 1.28 km.
+// Omväg (a-c-e-d) ≈ 4.87 km fågelvägen * 1.15 ≈ 5.60 km — ca 4.4x längre,
+// alltså tydligt över 1.9x-gränsen och robust oavsett flyttal-avrundning.
 
 test('haversineMeters ger rimligt avstånd mellan Malmö C och Triangeln (~1.9km)', () => {
   const d = haversineMeters(55.6094, 13.0007, 55.5945, 13.0004);
@@ -47,9 +55,9 @@ test('kShortest hittar båda rimliga vägarna a->d, kortast först', () => {
 test('meaningfulRoutes filtrerar bort vägar mer än ~2x längre än den kortaste', () => {
   const graph = buildGraph(places, edges);
   const routes = kShortest(graph, 'a', 'd', 5).sort((x, y) => x.meters - y.meters);
+  assert.ok(routes.length >= 2, `behöver minst 2 vägar för att testa filtreringen, fick ${routes.length}`);
   const filtered = meaningfulRoutes(routes);
-  assert.ok(filtered.every(r => r.meters <= filtered[0].meters * 1.9));
-  assert.ok(filtered.length < routes.length, 'den extremt långa vägen ska ha filtrerats bort');
+  assert.equal(filtered.length, 1, 'den ~4x längre omvägen ska ha filtrerats bort, bara den korta vägen kvar');
 });
 
 test('isWithinTolerance accepterar klick nära rätt punkt, avvisar långt bort', () => {

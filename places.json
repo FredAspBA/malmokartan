@@ -1,0 +1,272 @@
+[
+  {
+    "id": "djuphavsbadet",
+    "name": "Djuphavsbadet",
+    "lat": 55.5842,
+    "lon": 12.9442,
+    "category": "bad",
+    "fact": "Badplats längst ut vid Scaniaparken — djupt vatten direkt från kajkanten och utsikt över sundet.",
+    "photo": "djuphavsbadet.jpg"
+  },
+  {
+    "id": "torso",
+    "name": "Turning Torso",
+    "lat": 55.6133273,
+    "lon": 12.9763352,
+    "category": "hamn",
+    "fact": "Nordens högsta byggnad, 190 m, som vrider sig 90 grader på vägen upp.",
+    "photo": "torso.jpg"
+  },
+  {
+    "id": "vastrahamnen",
+    "name": "Västra hamnen",
+    "lat": 55.6127618,
+    "lon": 12.9833333,
+    "category": "hamn",
+    "fact": "Nybyggd stadsdel på det gamla varvsområdet: kajstråk, Sundspromenaden och havsbad.",
+    "photo": "vastrahamnen.jpg"
+  },
+  {
+    "id": "canteen",
+    "name": "Canteen",
+    "lat": 55.6150,
+    "lon": 12.9800,
+    "category": "hamn",
+    "fact": "Omtyckt restaurang i Västra hamnen — lunch och middag, nära vattnet.",
+    "photo": "canteen.jpg"
+  },
+  {
+    "id": "dockan",
+    "name": "Dockan",
+    "lat": 55.6158131,
+    "lon": 12.9893915,
+    "category": "hamn",
+    "fact": "Marina och kontorskvarter runt den gamla torrdockan från varvstiden.",
+    "photo": "dockan.jpg"
+  },
+  {
+    "id": "kockum",
+    "name": "Kockum Fritid",
+    "lat": 55.608527,
+    "lon": 12.977185,
+    "category": "hamn",
+    "fact": "Stor idrottsanläggning med simhall, ishall och sporthallar i gamla varvsområdet.",
+    "photo": "kockum.jpg"
+  },
+  {
+    "id": "centralen",
+    "name": "Centralen",
+    "lat": 55.6091712,
+    "lon": 12.9998411,
+    "category": "centrum",
+    "fact": "Malmö C — tåg mot Köpenhamn, Lund och resten av landet. Härifrån utgår det mesta.",
+    "photo": "centralen.jpg"
+  },
+  {
+    "id": "slottstradgarden",
+    "name": "Slottsträdgården",
+    "lat": 55.6034722,
+    "lon": 12.9865705,
+    "category": "park",
+    "fact": "Ekologisk visningsträdgård med kafé, odlingar och en väderkvarn.",
+    "photo": "slottstradgarden.jpg"
+  },
+  {
+    "id": "slottsparken",
+    "name": "Slottsparken",
+    "lat": 55.601299,
+    "lon": 12.9890323,
+    "category": "park",
+    "fact": "Engelsk landskapspark runt Malmöhus slott, med dammar och stadsbiblioteket i kanten.",
+    "photo": "slottsparken.jpg"
+  },
+  {
+    "id": "kungsparken",
+    "name": "Kungsparken",
+    "lat": 55.6036751,
+    "lon": 12.9928576,
+    "category": "park",
+    "fact": "Malmös äldsta park från 1872 — kanalen, gamla jätteträd och Casino Malmö i mitten.",
+    "photo": "kungsparken.jpg"
+  },
+  {
+    "id": "rorsjoparken",
+    "name": "Rörsjöparken",
+    "lat": 55.6051401,
+    "lon": 13.0177931,
+    "category": "park",
+    "fact": "Lugn kvarterspark med lekplats och stora almar mitt i Rörsjöstaden.",
+    "photo": "rorsjoparken.jpg"
+  },
+  {
+    "id": "triangeln",
+    "name": "Triangeln",
+    "lat": 55.5932928,
+    "lon": 13.0010364,
+    "category": "centrum",
+    "fact": "Köpcentrum, kyrka och en tågstation under jord — tåget mot Köpenhamn stannar här.",
+    "photo": "triangeln.jpg"
+  },
+  {
+    "id": "stknut",
+    "name": "S:t Knut",
+    "lat": 55.5965708,
+    "lon": 13.0132617,
+    "category": "centrum",
+    "fact": "S:t Knuts torg — litet torg på Amiralsgatan med kaféer och kvarterskänsla.",
+    "photo": "stknut.jpg"
+  },
+  {
+    "id": "folketspark",
+    "name": "Folkets park",
+    "lat": 55.5933696,
+    "lon": 13.0138606,
+    "category": "park",
+    "fact": "Sveriges äldsta folkpark: Far i hatten, minigolf, dansbanor, terrarium och loppis.",
+    "photo": "folketspark.jpg"
+  },
+  {
+    "id": "mollan",
+    "name": "Möllevångstorget",
+    "lat": 55.5916612,
+    "lon": 13.0081207,
+    "category": "centrum",
+    "fact": "\"Möllan\" — grönsaksmarknad på förmiddagen, krogar och folkliv på kvällen.",
+    "photo": "mollan.jpg"
+  },
+  {
+    "id": "sodervarn",
+    "name": "Södervärn",
+    "lat": 55.5868038,
+    "lon": 13.0085354,
+    "category": "centrum",
+    "fact": "Malmös stora busshubb — nästan alla stadsbussar passerar här. Sjukhusområdet ligger intill.",
+    "photo": "sodervarn.jpg"
+  },
+  {
+    "id": "vattentornet",
+    "name": "Södervärns vattentorn",
+    "lat": 55.5870,
+    "lon": 13.0095,
+    "category": "centrum",
+    "fact": "Vattentornet från 1916 som ser ut som en jättesvamp. Syns långt och är ett bra riktmärke söderut.",
+    "photo": "vattentornet.jpg"
+  },
+  {
+    "id": "karlskronaplan",
+    "name": "Karlskronaplan",
+    "lat": 55.5938629,
+    "lon": 13.018862,
+    "category": "centrum",
+    "fact": "Torg i Sofielund med torghandel och plats där flera gator strålar samman.",
+    "photo": "karlskronaplan.jpg"
+  },
+  {
+    "id": "pildammsparken",
+    "name": "Pildammsparken",
+    "lat": 55.5905869,
+    "lon": 12.991573,
+    "category": "park",
+    "fact": "Malmös största park: dammarna, Tallriken och Amfiteatern. Anlagd kring 1914 års utställning.",
+    "photo": "pildammsparken.jpg"
+  },
+  {
+    "id": "stadion",
+    "name": "Malmö stadion",
+    "lat": 55.5859136,
+    "lon": 12.9893554,
+    "category": "centrum",
+    "fact": "Gamla arenan från fotbolls-VM 1958. Nya Eleda Stadion, där MFF spelar, ligger vägg i vägg.",
+    "photo": "stadion.jpg"
+  },
+  {
+    "id": "varnhem",
+    "name": "Värnhem",
+    "lat": 55.6055276,
+    "lon": 13.0228933,
+    "category": "oster",
+    "fact": "Värnhemstorget — viktig bytespunkt för bussar i nordöstra innerstaden, med Entré-huset intill.",
+    "photo": "varnhem.jpg"
+  },
+  {
+    "id": "beijers",
+    "name": "Beijers park",
+    "lat": 55.6104587,
+    "lon": 13.0499,
+    "category": "park",
+    "fact": "Kuperad park i Kirseberg med utsikt över stan, hundrastgård och plaskdamm.",
+    "photo": "beijers.jpg"
+  },
+  {
+    "id": "kirseberg",
+    "name": "Kirseberg",
+    "lat": 55.6036,
+    "lon": 13.0201,
+    "category": "oster",
+    "fact": "\"Backarna\" — gammal stadsdel med små hus, eget torg och gott om verkstads- och kulturliv.",
+    "photo": "kirseberg.jpg"
+  },
+  {
+    "id": "nobeltorget",
+    "name": "Nobeltorget",
+    "lat": 55.5917552,
+    "lon": 13.0198543,
+    "category": "oster",
+    "fact": "Torg där Nobelvägen och Amiralsgatan möts, i östra kanten av innerstaden.",
+    "photo": "nobeltorget.jpg"
+  },
+  {
+    "id": "kallbadhuset",
+    "name": "Ribersborgs kallbadhus",
+    "lat": 55.6052194,
+    "lon": 12.96572,
+    "category": "bad",
+    "fact": "Kallbadhus från 1898 ute på bryggan — bastu och havsbad året runt, med dam- och herravdelning.",
+    "photo": "kallbadhuset.jpg"
+  },
+  {
+    "id": "ribban",
+    "name": "Ribersborgsstranden",
+    "lat": 55.6020726,
+    "lon": 12.966641,
+    "category": "bad",
+    "fact": "\"Ribban\" — långgrund stadsstrand med breda gräsytor, grillplatser och flera bryggor.",
+    "photo": "ribban.jpg"
+  },
+  {
+    "id": "tbryggan",
+    "name": "T-bryggan",
+    "lat": 55.6024,
+    "lon": 12.9656,
+    "category": "bad",
+    "fact": "Badbrygga formad som ett T rakt ut i Öresund — klassiskt ställe för morgondopp.",
+    "photo": "tbryggan.jpg"
+  },
+  {
+    "id": "handikappbadet",
+    "name": "Handikappbadet",
+    "lat": 55.5982265,
+    "lon": 12.9492527,
+    "category": "bad",
+    "fact": "Ribersborgs handikappbad — tillgänglig badbrygga med ramp, lift och omklädningsrum.",
+    "photo": "handikappbadet.jpg"
+  },
+  {
+    "id": "limhamn",
+    "name": "Limhamn",
+    "lat": 55.5827571,
+    "lon": 12.9280636,
+    "category": "bad",
+    "fact": "Gammalt fiske- och kalkbrottssamhälle, numera del av Malmö. Hamnen, torget och det stora kalkbrottet.",
+    "photo": "limhamn.jpg"
+  },
+  {
+    "id": "sibbarp",
+    "name": "Sibbarp",
+    "lat": 55.5745125,
+    "lon": 12.9117865,
+    "category": "bad",
+    "fact": "Badplats och grillområde med bryggor, rakt under Öresundsbrons fäste.",
+    "photo": "sibbarp.jpg"
+  }
+]

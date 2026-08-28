@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   haversineMeters, buildGraph, shortestPath, kShortest, meaningfulRoutes, isWithinTolerance
 } from './routing.mjs';
@@ -74,4 +75,19 @@ test('buildGraph räknar meterlängd längs given geometri, inte fågelvägen', 
   const graph = buildGraph(places, zigzag);
   const straight = haversineMeters(55.60, 13.00, 55.61, 13.00);
   assert.ok(graph.a[0].meters > straight, 'zigzag-geometrin ska vara längre än fågelvägen');
+});
+
+test('places.json innehåller 30 unika platser inom Malmös bounding box', () => {
+  const places = JSON.parse(readFileSync(new URL('./places.json', import.meta.url)));
+  assert.equal(places.length, 30, `förväntade 30 platser, hittade ${places.length}`);
+  const ids = new Set(places.map(p => p.id));
+  assert.equal(ids.size, places.length, 'id:n måste vara unika');
+  const CATS = new Set(['bad', 'hamn', 'park', 'centrum', 'oster']);
+  for (const p of places) {
+    assert.ok(p.lat > 55.55 && p.lat < 55.65, `${p.id}: lat ${p.lat} utanför Malmö`);
+    assert.ok(p.lon > 12.85 && p.lon < 13.05, `${p.id}: lon ${p.lon} utanför Malmö`);
+    assert.ok(CATS.has(p.category), `${p.id}: okänd kategori "${p.category}"`);
+    assert.ok(p.fact && p.fact.length > 10, `${p.id}: saknar fact-text`);
+    assert.ok(p.photo, `${p.id}: saknar photo-fält`);
+  }
 });

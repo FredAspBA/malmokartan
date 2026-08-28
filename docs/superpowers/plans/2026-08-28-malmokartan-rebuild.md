@@ -1448,7 +1448,7 @@ node tools/prep-routes.mjs      # routes.json
 - [ ] **Step 2: Run the full test suite one last time**
 
 Run: `node --test test.mjs`
-Expected: All tests PASS (15 total across Tasks 1, 2, 3, 7).
+Expected: All tests PASS (13 total: 7 from Task 1, 1 from Task 2, 2 from Task 3, 3 from Task 7).
 
 - [ ] **Step 3: Commit the README**
 

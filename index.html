@@ -9,15 +9,18 @@
   :root{
     --bg:#171B1A; --panel:#212826; --ink:#EDE8DE; --ink-soft:#B4ADA1;
     --accent:#3FC2D1; --accent-ink:#06262B; --line: rgba(237,232,222,0.12);
+    --accent-tint: rgba(63,194,209,.12);
   }
   :root[data-theme="light"]{
     --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
     --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
+    --accent-tint: rgba(27,138,152,.12);
   }
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
       --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
       --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
+      --accent-tint: rgba(27,138,152,.12);
     }
   }
   *{box-sizing:border-box;}

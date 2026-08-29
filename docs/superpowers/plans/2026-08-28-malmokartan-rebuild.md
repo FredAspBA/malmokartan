@@ -558,9 +558,12 @@ function stripPrep(via) {
 // Bounding box (syd,väst,nord,öst) som täcker from/to med marginal — så att
 // en gata som svänger mellan de två platserna ändå fångas, men inte så
 // stor att en helt annan gata med samma namn på andra sidan stan följer med.
+// Marginalen är generös (platser sitter sällan bokstavligen på den gata som
+// beskriver vägen dit — Triangeln ligger t.ex. drygt 700 m från Amiralsgatan
+// men "längs Amiralsgatan" är ändå rätt beskrivning av cykelturen).
 function bboxFor(from, to) {
   const straightM = haversineMeters(from.lat, from.lon, to.lat, to.lon);
-  const padM = Math.max(400, straightM * 0.5);
+  const padM = Math.max(700, straightM * 0.6);
   const midLatRad = (from.lat + to.lat) / 2 * Math.PI / 180;
   const padLat = padM / 111000;
   const padLon = padM / (111000 * Math.cos(midLatRad));
@@ -634,14 +637,14 @@ async function geometryForEdge(edge) {
   const { graph, pointOf } = buildWayGraph(ways);
   const fromNode = nearestNode(pointOf, from.lat, from.lon);
   const toNode = nearestNode(pointOf, to.lat, to.lon);
-  if (fromNode.dist > 150 || toNode.dist > 150) {
-    console.warn(`  ! "${streetName}" hittades men ligger för långt från ${edge.from}/${edge.to} (${Math.round(fromNode.dist)}m/${Math.round(toNode.dist)}m) — rak linje`);
-    return straight;
-  }
-
+  // Ingen hård gräns här på hur långt bort noden ligger från platsen — en
+  // plats sitter sällan exakt på den gata som beskriver vägen dit (se
+  // kommentaren vid bboxFor). Söksökrutan är redan den geografiska filtret;
+  // den enda ytterligare kontrollen är att den ihopsatta vägen inte blir
+  // orimligt lång (nedan). Avstånden loggas ändå, som information.
   const route = shortestPath(graph, fromNode.id, toNode.id);
   if (!route) {
-    console.warn(`  ! "${streetName}"-segmenten hänger inte ihop mellan ${edge.from} och ${edge.to} — rak linje`);
+    console.warn(`  ! "${streetName}"-segmenten hänger inte ihop mellan ${edge.from} och ${edge.to} (närmast: ${Math.round(fromNode.dist)}m/${Math.round(toNode.dist)}m) — rak linje`);
     return straight;
   }
   if (route.meters > straightM * 3) {
@@ -649,7 +652,10 @@ async function geometryForEdge(edge) {
     return straight;
   }
 
-  return pathNodes(route).map(id => pointOf[id]);
+  // Foga ihop den riktiga platskoordinaten i varje ände med gatans geometri
+  // — annars slutar linjen mitt i en gata istället för vid markören.
+  const streetPoints = pathNodes(route).map(id => pointOf[id]);
+  return [[from.lat, from.lon], ...streetPoints, [to.lat, to.lon]];
 }
 
 const out = [];

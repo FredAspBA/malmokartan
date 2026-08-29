@@ -66,7 +66,13 @@
         <div class="place-name" id="placeName"></div>
         <p class="place-fact" id="placeFact"></p>
       </div>
-      <div class="panel" id="panel-cykla"></div>
+      <div class="panel" id="panel-cykla">
+        <select id="fromSel" aria-label="Från" style="width:100%;padding:9px;border-radius:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);margin-bottom:6px;"></select>
+        <select id="toSel" aria-label="Till" style="width:100%;padding:9px;border-radius:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);"></select>
+        <div id="routeOpts" style="display:flex;flex-direction:column;gap:6px;margin-top:10px;"></div>
+        <div id="routeLegs" style="display:flex;flex-direction:column;gap:0;margin-top:10px;"></div>
+        <p class="hint" style="margin-top:10px;">Du kan också trycka på kartan: första trycket väljer start, andra väljer mål.</p>
+      </div>
       <div class="panel" id="panel-quiz"></div>
     </div>
   </div>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Malmökartan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#171B1A; --panel:#212826; --ink:#EDE8DE; --ink-soft:#B4ADA1;
+    --accent:#3FC2D1; --accent-ink:#06262B; --line: rgba(237,232,222,0.12);
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
+    --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
+      --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--bg);}
+  body{
+    font-family:-apple-system,'Segoe UI',sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  header{ padding:14px 16px 8px; }
+  h1{ font-size:18px; font-weight:800; margin:0; letter-spacing:-.01em; }
+  .modes{ display:flex; gap:6px; padding:0 16px 10px; }
+  .mode-btn{
+    flex:1; min-height:40px; border-radius:9px; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink-soft); font:600 12.5px inherit;
+    letter-spacing:.02em; cursor:pointer;
+  }
+  .mode-btn.active{ background:var(--accent); color:var(--accent-ink); border-color:transparent; }
+  .board{ flex:1; display:grid; grid-template-columns: 1.3fr 1fr; gap:12px; padding:0 16px 16px; min-height:0; }
+  @media (max-width:860px){ .board{ grid-template-columns:1fr; } }
+  #map{ border-radius:12px; min-height:340px; }
+  .side{ display:flex; flex-direction:column; gap:10px; overflow-y:auto; }
+  .panel{ display:none; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .panel.active{ display:block; }
+  .place-photo{ width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:10px; display:block; background:var(--bg); }
+  .place-cat{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); font-weight:700; margin-top:10px; }
+  .place-name{ font-size:19px; font-weight:800; margin-top:2px; }
+  .place-fact{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin-top:8px; }
+  .hint{ font-size:12.5px; color:var(--ink-soft); }
+  .place-marker{ width:16px; height:16px; border-radius:50%; border:2px solid var(--bg); box-shadow:0 0 0 1px var(--line); }
+</style>
+</head>
+<body>
+  <header><h1>Malmökartan</h1></header>
+  <div class="modes" role="tablist">
+    <button class="mode-btn active" data-mode="utforska" role="tab">Utforska</button>
+    <button class="mode-btn" data-mode="cykla" role="tab">Cykla</button>
+    <button class="mode-btn" data-mode="quiz" role="tab">Quiz</button>
+  </div>
+  <div class="board">
+    <div id="map"></div>
+    <div class="side">
+      <div class="panel active" id="panel-utforska">
+        <p class="hint" id="explorePrompt">Tryck på en plats på kartan för att läsa om den.</p>
+        <img class="place-photo" id="placePhoto" style="display:none;" alt="">
+        <div class="place-cat" id="placeCat" style="display:none;"></div>
+        <div class="place-name" id="placeName"></div>
+        <p class="place-fact" id="placeFact"></p>
+      </div>
+      <div class="panel" id="panel-cykla"></div>
+      <div class="panel" id="panel-quiz"></div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

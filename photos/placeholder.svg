@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#212826"/>
+  <g fill="none" stroke="#B4ADA1" stroke-width="2.5" opacity="0.6">
+    <rect x="120" y="95" width="160" height="110" rx="6"/>
+    <circle cx="160" cy="130" r="14"/>
+    <path d="M120 185l50-45 40 32 30-22 40 55" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="200" y="235" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif"
+        font-size="12" letter-spacing="1.5" fill="#B4ADA1">FOTO KOMMER</text>
+</svg>

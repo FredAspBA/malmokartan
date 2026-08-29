@@ -785,15 +785,18 @@ Rekommenderat format: liggande foto, minst 800px bred, JPEG.
   :root{
     --bg:#171B1A; --panel:#212826; --ink:#EDE8DE; --ink-soft:#B4ADA1;
     --accent:#3FC2D1; --accent-ink:#06262B; --line: rgba(237,232,222,0.12);
+    --accent-tint: rgba(63,194,209,.12);
   }
   :root[data-theme="light"]{
     --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
     --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
+    --accent-tint: rgba(27,138,152,.12);
   }
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
       --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
       --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
+      --accent-tint: rgba(27,138,152,.12);
     }
   }
   *{box-sizing:border-box;}
@@ -1026,10 +1029,11 @@ function clearRouteLines() {
 
 function drawRoutes(routes) {
   clearRouteLines();
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
   routes.forEach((route, i) => {
     const latlngs = route.legs.flatMap(leg => leg.geometry || [[byId(leg.from).lat, byId(leg.from).lon], [byId(leg.to).lat, byId(leg.to).lon]]);
     const line = L.polyline(latlngs, {
-      color: '#3FC2D1', weight: i === cyklaState.selectedIndex ? 5 : 3,
+      color: accent, weight: i === cyklaState.selectedIndex ? 5 : 3,
       opacity: i === cyklaState.selectedIndex ? 0.95 : 0.3
     }).addTo(state.map);
     line.on('click', () => { cyklaState.selectedIndex = i; renderRouteResult(routes); });
@@ -1052,7 +1056,7 @@ function renderRouteResult(routes) {
   optsEl.innerHTML = routes.map((r, i) => {
     const label = i === 0 ? 'Snabbast' : routeLabel(r, ref, placesById);
     const km = (r.meters / 1000).toFixed(1);
-    const active = i === cyklaState.selectedIndex ? 'style="border-color:#3FC2D1;background:rgba(63,194,209,.12);"' : '';
+    const active = i === cyklaState.selectedIndex ? 'style="border-color:var(--accent);background:var(--accent-tint);"' : '';
     return `<button type="button" class="route-opt" data-i="${i}" ${active}
       style="text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;">
       <b>${label}</b> — ${km} km</button>`;
@@ -1064,14 +1068,28 @@ function renderRouteResult(routes) {
   const chosen = routes[cyklaState.selectedIndex];
   legsEl.innerHTML = chosen.legs.map((leg, i) => `
     <div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px;">
-      <span style="flex:none;width:19px;height:19px;border-radius:50%;background:#3FC2D1;color:#06262B;font-size:10.5px;display:flex;align-items:center;justify-content:center;">${i + 1}</span>
+      <span style="flex:none;width:19px;height:19px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:10.5px;display:flex;align-items:center;justify-content:center;">${i + 1}</span>
       <span style="color:var(--ink-soft);">${byId(leg.from).name} → <b style="color:var(--ink);">${byId(leg.to).name}</b>, ${leg.via} (${Math.round(leg.meters)} m)</span>
     </div>`).join('');
   drawRoutes(routes);
 }
 
+// Om valet är ofullständigt eller ogiltigt (samma plats i båda fälten)
+// städas gamla resultat bort istället för att bara tyst göra ingenting —
+// annars blir en tidigare visad rutt kvar på skärmen och pekar fel.
+function clearRouteDisplay() {
+  document.getElementById('routeOpts').innerHTML = '';
+  document.getElementById('routeLegs').innerHTML = '';
+  clearRouteLines();
+}
+
 function computeAndRenderRoute() {
-  if (!cyklaState.from || !cyklaState.to || cyklaState.from === cyklaState.to) return;
+  if (!cyklaState.from || !cyklaState.to) { clearRouteDisplay(); return; }
+  if (cyklaState.from === cyklaState.to) {
+    clearRouteDisplay();
+    document.getElementById('routeOpts').innerHTML = '<p class="hint">Välj två olika platser.</p>';
+    return;
+  }
   cyklaState.selectedIndex = 0;
   const routes = meaningfulRoutes(kShortest(state.graph, cyklaState.from, cyklaState.to, 3));
   renderRouteResult(routes);

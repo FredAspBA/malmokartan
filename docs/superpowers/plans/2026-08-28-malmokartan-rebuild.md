@@ -555,6 +555,14 @@ function stripPrep(via) {
   return via.replace(/^(längs|genom|förbi|över|upp för)\s+/, '');
 }
 
+function polylineMeters(coords) {
+  let total = 0;
+  for (let i = 1; i < coords.length; i++) {
+    total += haversineMeters(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1]);
+  }
+  return total;
+}
+
 // Bounding box (syd,väst,nord,öst) som täcker from/to med marginal — så att
 // en gata som svänger mellan de två platserna ändå fångas, men inte så
 // stor att en helt annan gata med samma namn på andra sidan stan följer med.
@@ -639,23 +647,29 @@ async function geometryForEdge(edge) {
   const toNode = nearestNode(pointOf, to.lat, to.lon);
   // Ingen hård gräns här på hur långt bort noden ligger från platsen — en
   // plats sitter sällan exakt på den gata som beskriver vägen dit (se
-  // kommentaren vid bboxFor). Söksökrutan är redan den geografiska filtret;
-  // den enda ytterligare kontrollen är att den ihopsatta vägen inte blir
-  // orimligt lång (nedan). Avstånden loggas ändå, som information.
+  // kommentaren vid bboxFor). Söksökrutan är redan den geografiska filtret.
   const route = shortestPath(graph, fromNode.id, toNode.id);
   if (!route) {
     console.warn(`  ! "${streetName}"-segmenten hänger inte ihop mellan ${edge.from} och ${edge.to} (närmast: ${Math.round(fromNode.dist)}m/${Math.round(toNode.dist)}m) — rak linje`);
-    return straight;
-  }
-  if (route.meters > straightM * 3) {
-    console.warn(`  ! Ihopfogad väg via "${streetName}" är ${Math.round(route.meters)}m, orimligt mycket längre än ${Math.round(straightM)}m fågelvägen — rak linje`);
     return straight;
   }
 
   // Foga ihop den riktiga platskoordinaten i varje ände med gatans geometri
   // — annars slutar linjen mitt i en gata istället för vid markören.
   const streetPoints = pathNodes(route).map(id => pointOf[id]);
-  return [[from.lat, from.lon], ...streetPoints, [to.lat, to.lon]];
+  const geometry = [[from.lat, from.lon], ...streetPoints, [to.lat, to.lon]];
+
+  // Sundhetskontrollen mäts på den SLUTLIGA geometrin (gata + båda
+  // anslutningsbitarna till platserna), inte bara på den ihopfogade gatan
+  // för sig — annars kan en lång anslutningsbit dölja att totalen ändå blev
+  // orimlig, trots att gatubiten i sig klarade gränsen.
+  const totalM = polylineMeters(geometry);
+  if (totalM > straightM * 3) {
+    console.warn(`  ! Slutlig väg via "${streetName}" (inkl. anslutning till platserna) är ${Math.round(totalM)}m, mer än 3x de ${Math.round(straightM)}m fågelvägen — rak linje`);
+    return straight;
+  }
+
+  return geometry;
 }
 
 const out = [];

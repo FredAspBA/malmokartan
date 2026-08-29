@@ -2,8 +2,8 @@
   {
     "id": "djuphavsbadet",
     "name": "Djuphavsbadet",
-    "lat": 55.6145,
-    "lon": 12.9688,
+    "lat": 55.6176977,
+    "lon": 12.9755962,
     "category": "bad",
     "fact": "Badplats längst ut vid Scaniaparken — djupt vatten direkt från kajkanten och utsikt över sundet.",
     "photo": "djuphavsbadet.jpg"
@@ -146,8 +146,8 @@
   {
     "id": "vattentornet",
     "name": "Södervärns vattentorn",
-    "lat": 55.5868,
-    "lon": 13.0085,
+    "lat": 55.58798,
+    "lon": 13.01174,
     "category": "centrum",
     "fact": "Vattentornet från 1916 som ser ut som en jättesvamp. Syns långt och är ett bra riktmärke söderut.",
     "photo": "vattentornet.jpg"

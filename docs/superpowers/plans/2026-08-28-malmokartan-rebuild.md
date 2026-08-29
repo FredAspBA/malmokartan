@@ -867,7 +867,7 @@ const state = {
   routes: [],
   graph: null,
   map: null,
-  markers: new Map() // place id -> L.CircleMarker
+  markers: new Map() // plats-id -> L.CircleMarker
 };
 
 async function loadData() {
@@ -942,7 +942,12 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 
 async function main() {
   initMap();
-  await loadData();
+  try {
+    await loadData();
+  } catch (err) {
+    document.getElementById('explorePrompt').textContent = 'Kunde inte ladda platsdata. Ladda om sidan.';
+    return;
+  }
   renderMarkers();
 }
 
@@ -1098,7 +1103,12 @@ Also change the end of `main()` to call `populateCyklaSelects()` after `renderMa
 ```js
 async function main() {
   initMap();
-  await loadData();
+  try {
+    await loadData();
+  } catch (err) {
+    document.getElementById('explorePrompt').textContent = 'Kunde inte ladda platsdata. Ladda om sidan.';
+    return;
+  }
   renderMarkers();
   populateCyklaSelects();
 }
@@ -1444,7 +1454,12 @@ Update `main()` to render existing landmarks on load:
 ```js
 async function main() {
   initMap();
-  await loadData();
+  try {
+    await loadData();
+  } catch (err) {
+    document.getElementById('explorePrompt').textContent = 'Kunde inte ladda platsdata. Ladda om sidan.';
+    return;
+  }
   renderMarkers();
   renderLandmarkMarkers();
   renderLandmarkList();

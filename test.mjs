@@ -91,3 +91,23 @@ test('places.json innehåller 30 unika platser inom Malmös bounding box', () =>
     assert.ok(p.photo, `${p.id}: saknar photo-fält`);
   }
 });
+
+test('routes.json refererar bara riktiga platser och har giltig geometri', () => {
+  const places = JSON.parse(readFileSync(new URL('./places.json', import.meta.url)));
+  const routes = JSON.parse(readFileSync(new URL('./routes.json', import.meta.url)));
+  const ids = new Set(places.map(p => p.id));
+  assert.ok(routes.length >= 30, `förväntade minst 30 kanter, hittade ${routes.length}`);
+  for (const r of routes) {
+    assert.ok(ids.has(r.from), `okänd from-plats "${r.from}"`);
+    assert.ok(ids.has(r.to), `okänd to-plats "${r.to}"`);
+    assert.ok(Array.isArray(r.geometry) && r.geometry.length >= 2, `${r.from}->${r.to}: ogiltig geometri`);
+  }
+});
+
+test('varje plats i places.json nås av minst en kant i routes.json', () => {
+  const places = JSON.parse(readFileSync(new URL('./places.json', import.meta.url)));
+  const routes = JSON.parse(readFileSync(new URL('./routes.json', import.meta.url)));
+  const connected = new Set(routes.flatMap(r => [r.from, r.to]));
+  const isolated = places.filter(p => !connected.has(p.id));
+  assert.equal(isolated.length, 0, `Platser utan någon rutt: ${isolated.map(p => p.id).join(', ')}`);
+});

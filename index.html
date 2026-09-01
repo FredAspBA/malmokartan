@@ -10,17 +10,20 @@
     --bg:#171B1A; --panel:#212826; --ink:#EDE8DE; --ink-soft:#B4ADA1;
     --accent:#3FC2D1; --accent-ink:#06262B; --line: rgba(237,232,222,0.12);
     --accent-tint: rgba(63,194,209,.12);
+    --success:#7FBF8E; --error:#E0764F;
   }
   :root[data-theme="light"]{
     --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
     --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
     --accent-tint: rgba(27,138,152,.12);
+    --success:#1E7A46; --error:#B23A12;
   }
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
       --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1A1D1C; --ink-soft:#5B6460;
       --accent:#1B8A98; --accent-ink:#FFFFFF; --line: rgba(26,29,28,0.12);
       --accent-tint: rgba(27,138,152,.12);
+      --success:#1E7A46; --error:#B23A12;
     }
   }
   *{box-sizing:border-box;}
@@ -76,7 +79,15 @@
         <div id="routeLegs" style="display:flex;flex-direction:column;gap:0;margin-top:10px;"></div>
         <p class="hint" style="margin-top:10px;">Du kan också trycka på kartan: första trycket väljer start, andra väljer mål.</p>
       </div>
-      <div class="panel" id="panel-quiz"></div>
+      <div class="panel" id="panel-quiz">
+        <div class="hint" id="quizPrompt">Tryck "Börja" för att spela.</div>
+        <div id="quizPromptName" style="font-size:19px;font-weight:800;margin-top:6px;display:none;"></div>
+        <div id="quizHearts" style="font-size:16px;letter-spacing:2px;margin-top:6px;"></div>
+        <div id="quizStats" style="font-size:12.5px;color:var(--ink-soft);margin-top:2px;"></div>
+        <div id="quizFeedback" style="min-height:20px;font-size:13.5px;margin-top:8px;"></div>
+        <button type="button" id="quizStartBtn"
+          style="margin-top:10px;min-height:40px;border-radius:9px;border:none;background:var(--accent);color:var(--accent-ink);font:700 13px inherit;cursor:pointer;">Börja</button>
+      </div>
     </div>
   </div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

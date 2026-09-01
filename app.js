@@ -1,4 +1,4 @@
-import { buildGraph, kShortest, meaningfulRoutes, routeLabel } from './routing.mjs';
+import { buildGraph, kShortest, meaningfulRoutes, routeLabel, isWithinTolerance } from './routing.mjs';
 
 const CAT_COLOR = {
   bad: '#3FC2D1', hamn: '#5FA8E8', park: '#7FBF8E', centrum: '#E0764F', oster: '#D9A752', egen: '#B4ADA1'
@@ -29,6 +29,9 @@ function initMap() {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare'
   }).addTo(state.map);
+  state.map.on('click', e => {
+    if (state.mode === 'quiz') handleQuizGuess(e.latlng.lat, e.latlng.lng);
+  });
 }
 
 function renderMarkers() {
@@ -187,6 +190,82 @@ document.addEventListener('malmokartan:place-click', ev => {
 
 document.addEventListener('malmokartan:mode-change', ev => {
   if (ev.detail !== 'cykla') clearRouteLines();
+});
+
+const QUIZ_TOLERANCE_M = 150;
+const quiz = { pool: [], current: null, hearts: 3, score: 0, total: 0, active: false };
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  quiz.pool = shuffle(state.places);
+  quiz.hearts = 3; quiz.score = 0; quiz.total = 0; quiz.active = true;
+  document.getElementById('quizPromptName').style.display = '';
+  nextQuizQuestion();
+}
+
+function renderQuizStatus() {
+  document.getElementById('quizHearts').textContent = '♥'.repeat(quiz.hearts) + '♡'.repeat(3 - quiz.hearts);
+  document.getElementById('quizStats').textContent = `${quiz.score}/${quiz.total} rätt`;
+}
+
+function nextQuizQuestion() {
+  if (quiz.hearts <= 0) { endQuiz(); return; }
+  if (!quiz.pool.length) quiz.pool = shuffle(state.places);
+  quiz.current = quiz.pool.shift();
+  document.getElementById('quizPrompt').textContent = 'Tryck på kartan där den här platsen ligger:';
+  document.getElementById('quizPromptName').textContent = quiz.current.name;
+  document.getElementById('quizFeedback').textContent = '';
+  renderQuizStatus();
+}
+
+function endQuiz() {
+  quiz.active = false;
+  document.getElementById('quizPrompt').textContent = `Slut! Du fick ${quiz.score} av ${quiz.total} rätt.`;
+  document.getElementById('quizPromptName').style.display = 'none';
+  document.getElementById('quizFeedback').textContent = '';
+}
+
+// quiz.current nollas direkt (innan setTimeout) så att ett klick som hinner
+// komma innan nästa fråga är redo aldrig räknas som ännu en gissning på
+// samma fråga. Detta skyddar mot två separata fall: (1) Leaflets
+// circleMarker har bubblingMouseEvents:true som standard, så ett klick
+// direkt på en markör triggrar både markörens egna klick (via
+// malmokartan:place-click) OCH kartans generella click-event i samma
+// synkrona sekvens — utan spärren skulle det räknas som två gissningar för
+// ett enda klick. (2) Ett snabbt extra klick under den ~900ms långa
+// väntetiden efter sista hjärtat skulle annars kunna göra quiz.hearts
+// negativt, vilket kraschar '♥'.repeat(quiz.hearts) i renderQuizStatus.
+function handleQuizGuess(lat, lon) {
+  if (!quiz.active || !quiz.current) return;
+  quiz.total++;
+  const correct = isWithinTolerance(lat, lon, quiz.current.lat, quiz.current.lon, QUIZ_TOLERANCE_M);
+  const feedback = document.getElementById('quizFeedback');
+  if (correct) {
+    quiz.score++;
+    feedback.textContent = `Rätt! Det var ${quiz.current.name}.`;
+    feedback.style.color = 'var(--success)';
+  } else {
+    quiz.hearts--;
+    feedback.textContent = `Fel — ${quiz.current.name} låg någon annanstans.`;
+    feedback.style.color = 'var(--error)';
+  }
+  quiz.current = null;
+  renderQuizStatus();
+  setTimeout(nextQuizQuestion, 900);
+}
+
+document.getElementById('quizStartBtn').addEventListener('click', startQuiz);
+
+document.addEventListener('malmokartan:place-click', ev => {
+  if (state.mode === 'quiz') handleQuizGuess(ev.detail.lat, ev.detail.lon);
 });
 
 async function main() {

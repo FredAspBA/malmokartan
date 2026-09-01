@@ -1191,6 +1191,10 @@ function shuffle(arr) {
 }
 
 function startQuiz() {
+  if (!state.places.length) {
+    document.getElementById('quizPrompt').textContent = 'Platsdata är inte klar än — vänta en stund och försök igen.';
+    return;
+  }
   quiz.pool = shuffle(state.places);
   quiz.hearts = 3; quiz.score = 0; quiz.total = 0; quiz.active = true;
   document.getElementById('quizPromptName').style.display = '';

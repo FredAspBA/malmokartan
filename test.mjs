@@ -111,3 +111,41 @@ test('varje plats i places.json nås av minst en kant i routes.json', () => {
   const isolated = places.filter(p => !connected.has(p.id));
   assert.equal(isolated.length, 0, `Platser utan någon rutt: ${isolated.map(p => p.id).join(', ')}`);
 });
+
+function fakeStorage() {
+  const data = new Map();
+  return {
+    getItem: k => (data.has(k) ? data.get(k) : null),
+    setItem: (k, v) => data.set(k, v)
+  };
+}
+
+test('saveCustomLandmarks / loadCustomLandmarks round-trip via injectable storage', async () => {
+  const { saveCustomLandmarks, loadCustomLandmarks } = await import('./landmarks.mjs');
+  const storage = fakeStorage();
+  saveCustomLandmarks([{ name: 'Mitt gym', lat: 55.6, lon: 13.0 }], storage);
+  const loaded = loadCustomLandmarks(storage);
+  assert.equal(loaded.length, 1);
+  assert.equal(loaded[0].name, 'Mitt gym');
+  assert.equal(loaded[0].lat, 55.6);
+});
+
+test('loadCustomLandmarks ignorerar korrupt data istället för att krascha', async () => {
+  const { loadCustomLandmarks } = await import('./landmarks.mjs');
+  const storage = fakeStorage();
+  storage.setItem('malmokartan-landmarks-v1', 'inte json');
+  assert.deepEqual(loadCustomLandmarks(storage), []);
+});
+
+test('loadCustomLandmarks filtrerar bort poster utan namn eller koordinater', async () => {
+  const { loadCustomLandmarks } = await import('./landmarks.mjs');
+  const storage = fakeStorage();
+  storage.setItem('malmokartan-landmarks-v1', JSON.stringify([
+    { name: 'Bra post', lat: 55.6, lon: 13.0 },
+    { name: '', lat: 55.6, lon: 13.0 },
+    { lat: 55.6, lon: 13.0 }
+  ]));
+  const loaded = loadCustomLandmarks(storage);
+  assert.equal(loaded.length, 1);
+  assert.equal(loaded[0].name, 'Bra post');
+});

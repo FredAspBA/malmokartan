@@ -1,4 +1,5 @@
 import { buildGraph, kShortest, meaningfulRoutes, routeLabel, isWithinTolerance } from './routing.mjs';
+import { loadCustomLandmarks, saveCustomLandmarks } from './landmarks.mjs';
 
 const CAT_COLOR = {
   bad: '#3FC2D1', hamn: '#5FA8E8', park: '#7FBF8E', centrum: '#E0764F', oster: '#D9A752', egen: '#B4ADA1'
@@ -30,6 +31,7 @@ function initMap() {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare'
   }).addTo(state.map);
   state.map.on('click', e => {
+    if (placingName) { handlePlacingClick(e); return; }
     if (state.mode === 'quiz') handleQuizGuess(e.latlng.lat, e.latlng.lng);
   });
 }
@@ -272,6 +274,79 @@ document.addEventListener('malmokartan:place-click', ev => {
   if (state.mode === 'quiz') handleQuizGuess(ev.detail.lat, ev.detail.lon);
 });
 
+let customLandmarks = loadCustomLandmarks(window.localStorage);
+let placingName = null;
+
+function renderLandmarkMarkers() {
+  customLandmarks.forEach(l => {
+    if (state.markers.has(l.id)) return;
+    const marker = L.circleMarker([l.lat, l.lon], {
+      radius: 8, weight: 2, color: '#171B1A', fillColor: CAT_COLOR.egen, fillOpacity: 1
+    }).addTo(state.map);
+    marker.on('click', () => onPlaceClick(l));
+    state.markers.set(l.id, marker);
+  });
+}
+
+function renderLandmarkList() {
+  const list = document.getElementById('lmList');
+  if (!customLandmarks.length) { list.innerHTML = ''; return; }
+  list.innerHTML = customLandmarks.map(l => `
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line);">
+      <span>${l.name}</span>
+      <button type="button" class="lm-del" data-id="${l.id}"
+        style="border:none;background:none;color:var(--error);cursor:pointer;font-size:12px;">Ta bort</button>
+    </div>`).join('');
+  list.querySelectorAll('.lm-del').forEach(btn => btn.addEventListener('click', () => removeLandmark(btn.dataset.id)));
+}
+
+function removeLandmark(id) {
+  const marker = state.markers.get(id);
+  if (marker) { state.map.removeLayer(marker); state.markers.delete(id); }
+  customLandmarks = customLandmarks.filter(l => l.id !== id);
+  state.places = state.places.filter(p => p.id !== id);
+  saveCustomLandmarks(customLandmarks, window.localStorage);
+  renderLandmarkList();
+}
+
+document.getElementById('lmForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const input = document.getElementById('lmInput');
+  const name = input.value.trim();
+  if (!name) return;
+  placingName = name;
+  document.getElementById('placingHint').style.display = '';
+  input.value = '';
+});
+
+function handlePlacingClick(e) {
+  if (!placingName) return;
+  const newLandmark = { id: `egen-${Date.now()}`, name: placingName, lat: e.latlng.lat, lon: e.latlng.lng, category: 'egen', fact: 'Ditt eget landmärke.', photo: 'placeholder.svg' };
+  customLandmarks.push(newLandmark);
+  state.places.push(newLandmark);
+  saveCustomLandmarks(customLandmarks, window.localStorage);
+  renderLandmarkMarkers();
+  renderLandmarkList();
+  placingName = null;
+  document.getElementById('placingHint').style.display = 'none';
+}
+
+// Landmärkesplacering hör hemma i Utforska-panelen (formuläret finns bara
+// där) — men state.mode kan bytas via lägesknapparna medan placingName
+// fortfarande är satt (t.ex. skriv namn, tryck Lägg till, byt sedan till
+// Quiz eller Cykla UTAN att klicka på kartan än). Utan den här spärren
+// skulle nästa kartklick — avsett som quiz-gissning eller Cykla-val —
+// tystat kapas och bli en landmärkesplacering istället, med
+// "Tryck på kartan"-hintan gömd i den overksamma Utforska-panelen så
+// användaren aldrig ser varför. Vi avbryter därför placeringsläget så
+// fort man lämnar Utforska.
+document.addEventListener('malmokartan:mode-change', ev => {
+  if (ev.detail !== 'utforska' && placingName) {
+    placingName = null;
+    document.getElementById('placingHint').style.display = 'none';
+  }
+});
+
 async function main() {
   initMap();
   try {
@@ -280,7 +355,16 @@ async function main() {
     document.getElementById('explorePrompt').textContent = 'Kunde inte ladda platsdata. Ladda om sidan.';
     return;
   }
+  // Egna landmärken vävs in i state.places så de dyker upp i quizets
+  // frågepool (se Interfaces-noten i task-briefen) och blir valbara
+  // start/mål-alternativ i Cykla. De saknar kanter i state.graph, så
+  // kShortest/shortestPath returnerar bara en tom lista om man väljer ett
+  // eget landmärke som start eller mål i Cykla — inget krasch, bara
+  // "Ingen cykelväg hittades" (verifierat mot routing.mjs).
+  state.places.push(...customLandmarks);
   renderMarkers();
+  renderLandmarkMarkers();
+  renderLandmarkList();
   populateCyklaSelects();
 }
 

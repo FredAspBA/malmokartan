@@ -1305,7 +1305,7 @@ function fakeStorage() {
 test('saveCustomLandmarks / loadCustomLandmarks round-trip via injectable storage', async () => {
   const { saveCustomLandmarks, loadCustomLandmarks } = await import('./landmarks.mjs');
   const storage = fakeStorage();
-  saveCustomLandmarks([{ name: 'Mitt gym', x: 400, y: 200 }], storage);
+  saveCustomLandmarks([{ name: 'Mitt gym', lat: 55.6, lon: 13.0 }], storage);
   const loaded = loadCustomLandmarks(storage);
   assert.equal(loaded.length, 1);
   assert.equal(loaded[0].name, 'Mitt gym');

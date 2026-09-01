@@ -94,7 +94,7 @@ function populateCyklaSelects() {
   const fromSel = document.getElementById('fromSel');
   const toSel = document.getElementById('toSel');
   const options = state.places
-    .slice()
+    .filter(p => p.category !== 'egen')
     .sort((a, b) => a.name.localeCompare(b.name, 'sv'))
     .map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   fromSel.innerHTML = `<option value="">Från…</option>${options}`;
@@ -186,10 +186,12 @@ document.getElementById('toSel').addEventListener('change', e => { cyklaState.to
 
 document.addEventListener('malmokartan:place-click', ev => {
   if (state.mode !== 'cykla') return;
+  if (ev.detail.category === 'egen') return; // inget cykelnät till egna landmärken, se populateCyklaSelects
   if (!cyklaState.from || (cyklaState.from && cyklaState.to)) {
     cyklaState.from = ev.detail.id; cyklaState.to = null;
     document.getElementById('fromSel').value = ev.detail.id;
     document.getElementById('toSel').value = '';
+    clearRouteDisplay(); // annars blir en tidigare rutt kvar på kartan/panelen när man börjar om via klick
   } else {
     cyklaState.to = ev.detail.id;
     document.getElementById('toSel').value = ev.detail.id;
@@ -281,7 +283,17 @@ document.addEventListener('malmokartan:place-click', ev => {
   if (state.mode === 'quiz') handleQuizGuess(ev.detail.lat, ev.detail.lon);
 });
 
-let customLandmarks = loadCustomLandmarks(window.localStorage);
+// window.localStorage kan kasta redan vid ÅTKOMST, inte bara vid get/set
+// (t.ex. Chrome med "blockera all cookiedata", eller gammal Safari i
+// privat läge) — landmarks.mjs skyddar bara get/setItem, så vi skyddar
+// själva åtkomsten här. Utan detta kraschar hela modulen redan innan
+// main() hinner köra, vilket ger en helt blank sida istället för en app
+// som bara saknar sparade landmärken.
+function safeStorage() {
+  try { return window.localStorage; } catch { return { getItem: () => null, setItem: () => {} }; }
+}
+
+let customLandmarks = loadCustomLandmarks(safeStorage());
 let placingName = null;
 
 function renderLandmarkMarkers() {
@@ -312,7 +324,7 @@ function removeLandmark(id) {
   if (marker) { state.map.removeLayer(marker); state.markers.delete(id); }
   customLandmarks = customLandmarks.filter(l => l.id !== id);
   state.places = state.places.filter(p => p.id !== id);
-  saveCustomLandmarks(customLandmarks, window.localStorage);
+  saveCustomLandmarks(customLandmarks, safeStorage());
   renderLandmarkList();
   populateCyklaSelects();
 }
@@ -332,7 +344,7 @@ function handlePlacingClick(e) {
   const newLandmark = { id: `egen-${Date.now()}`, name: placingName, lat: e.latlng.lat, lon: e.latlng.lng, category: 'egen', fact: 'Ditt eget landmärke.', photo: 'placeholder.svg' };
   customLandmarks.push(newLandmark);
   state.places.push(newLandmark);
-  saveCustomLandmarks(customLandmarks, window.localStorage);
+  saveCustomLandmarks(customLandmarks, safeStorage());
   renderLandmarkMarkers();
   renderLandmarkList();
   populateCyklaSelects();

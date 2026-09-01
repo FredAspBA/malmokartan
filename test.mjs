@@ -77,6 +77,14 @@ test('buildGraph räknar meterlängd längs given geometri, inte fågelvägen', 
   assert.ok(graph.a[0].meters > straight, 'zigzag-geometrin ska vara längre än fågelvägen');
 });
 
+test('buildGraph använder fågelväg * detour när geometry saknas helt (rak-linje-reträtt)', () => {
+  const noGeometry = [{ from: 'a', to: 'b', via: 'test' }]; // ingen geometry-nyckel alls
+  const graph = buildGraph(places, noGeometry);
+  const straight = haversineMeters(places[0].lat, places[0].lon, places[1].lat, places[1].lon);
+  assert.ok(Math.abs(graph.a[0].meters - straight * 1.15) < 0.01,
+    'utan geometry ska meters bli exakt fågelväg * 1.15, inte råkas matcha en 2-punkters "geometri"');
+});
+
 test('places.json innehåller 30 unika platser inom Malmös bounding box', () => {
   const places = JSON.parse(readFileSync(new URL('./places.json', import.meta.url)));
   assert.equal(places.length, 30, `förväntade 30 platser, hittade ${places.length}`);
@@ -100,7 +108,11 @@ test('routes.json refererar bara riktiga platser och har giltig geometri', () =>
   for (const r of routes) {
     assert.ok(ids.has(r.from), `okänd from-plats "${r.from}"`);
     assert.ok(ids.has(r.to), `okänd to-plats "${r.to}"`);
-    assert.ok(Array.isArray(r.geometry) && r.geometry.length >= 2, `${r.from}->${r.to}: ogiltig geometri`);
+    // geometry saknas helt för rak-linje-reträtter (se prep-routes.mjs) —
+    // det är avsiktligt, inte en ogiltig kant. Finns geometry ska den
+    // åtminstone ha två punkter.
+    assert.ok(r.geometry === undefined || (Array.isArray(r.geometry) && r.geometry.length >= 2),
+      `${r.from}->${r.to}: ogiltig geometri`);
   }
 });
 

@@ -80,11 +80,15 @@ function nearestNode(pointOf, lat, lon) {
   return { id: best, dist: bestDist };
 }
 
+// Returnerar riktig geometri (array), eller null om vi bara har en rak
+// linje att erbjuda. null (inte en 2-punkters rak linje) är avsiktligt:
+// buildGraph i routing.mjs avgör om en kant ska prissättas som fågelväg *
+// detour just genom att geometrin saknas — en riktig men råkat-vara-kort
+// gatumatchning får aldrig se ut som en rak-linje-reträtt.
 async function geometryForEdge(edge) {
   const from = byId[edge.from], to = byId[edge.to];
   if (!from || !to) throw new Error(`Okänd plats i kant ${edge.from}->${edge.to}`);
   const streetName = stripPrep(edge.via);
-  const straight = [[from.lat, from.lon], [to.lat, to.lon]];
   const straightM = haversineMeters(from.lat, from.lon, to.lat, to.lon);
 
   let ways;
@@ -92,11 +96,11 @@ async function geometryForEdge(edge) {
     ways = await fetchWays(streetName, bboxFor(from, to));
   } catch (err) {
     console.warn(`  ! Overpass-fel för ${edge.from}->${edge.to} (${streetName}): ${err.message} — rak linje`);
-    return straight;
+    return null;
   }
   if (!ways.length) {
     console.warn(`  ! Ingen väg vid namn "${streetName}" hittades nära ${edge.from}->${edge.to} — rak linje`);
-    return straight;
+    return null;
   }
 
   const { graph, pointOf } = buildWayGraph(ways);
@@ -108,7 +112,7 @@ async function geometryForEdge(edge) {
   const route = shortestPath(graph, fromNode.id, toNode.id);
   if (!route) {
     console.warn(`  ! "${streetName}"-segmenten hänger inte ihop mellan ${edge.from} och ${edge.to} (närmast: ${Math.round(fromNode.dist)}m/${Math.round(toNode.dist)}m) — rak linje`);
-    return straight;
+    return null;
   }
 
   // Foga ihop den riktiga platskoordinaten i varje ände med gatans geometri
@@ -123,7 +127,7 @@ async function geometryForEdge(edge) {
   const totalM = polylineMeters(geometry);
   if (totalM > straightM * 3) {
     console.warn(`  ! Slutlig väg via "${streetName}" (inkl. anslutning till platserna) är ${Math.round(totalM)}m, mer än 3x de ${Math.round(straightM)}m fågelvägen — rak linje`);
-    return straight;
+    return null;
   }
 
   return geometry;
@@ -133,8 +137,8 @@ const out = [];
 for (const edge of edgesSrc) {
   process.stdout.write(`${edge.from} -> ${edge.to} (${edge.via})... `);
   const geometry = await geometryForEdge(edge);
-  console.log(`${geometry.length} punkter`);
-  out.push({ ...edge, geometry });
+  console.log(geometry ? `${geometry.length} punkter` : 'rak linje (ingen geometri sparad)');
+  out.push(geometry ? { ...edge, geometry } : { ...edge });
   await new Promise(r => setTimeout(r, 1100)); // Overpass fair-use: max ~1 req/s
 }
 

@@ -2,62 +2,22 @@
   {
     "from": "sibbarp",
     "to": "limhamn",
-    "via": "längs kuststråket",
-    "geometry": [
-      [
-        55.5745125,
-        12.9117865
-      ],
-      [
-        55.5827571,
-        12.9280636
-      ]
-    ]
+    "via": "längs kuststråket"
   },
   {
     "from": "limhamn",
     "to": "handikappbadet",
-    "via": "längs Limhamnsvägen",
-    "geometry": [
-      [
-        55.5827571,
-        12.9280636
-      ],
-      [
-        55.5982265,
-        12.9492527
-      ]
-    ]
+    "via": "längs Limhamnsvägen"
   },
   {
     "from": "handikappbadet",
     "to": "tbryggan",
-    "via": "längs strandstråket",
-    "geometry": [
-      [
-        55.5982265,
-        12.9492527
-      ],
-      [
-        55.5992,
-        12.96
-      ]
-    ]
+    "via": "längs strandstråket"
   },
   {
     "from": "tbryggan",
     "to": "ribban",
-    "via": "längs strandstråket",
-    "geometry": [
-      [
-        55.5992,
-        12.96
-      ],
-      [
-        55.6020726,
-        12.966641
-      ]
-    ]
+    "via": "längs strandstråket"
   },
   {
     "from": "ribban",
@@ -406,17 +366,7 @@
   {
     "from": "torso",
     "to": "vastrahamnen",
-    "via": "längs Sundspromenaden",
-    "geometry": [
-      [
-        55.6133273,
-        12.9763352
-      ],
-      [
-        55.6127618,
-        12.9833333
-      ]
-    ]
+    "via": "längs Sundspromenaden"
   },
   {
     "from": "vastrahamnen",
@@ -471,62 +421,22 @@
   {
     "from": "dockan",
     "to": "kockum",
-    "via": "längs Västra Varvsgatan",
-    "geometry": [
-      [
-        55.6158131,
-        12.9893915
-      ],
-      [
-        55.608527,
-        12.977185
-      ]
-    ]
+    "via": "längs Västra Varvsgatan"
   },
   {
     "from": "kockum",
     "to": "centralen",
-    "via": "över Universitetsholmen",
-    "geometry": [
-      [
-        55.608527,
-        12.977185
-      ],
-      [
-        55.6091712,
-        12.9998411
-      ]
-    ]
+    "via": "över Universitetsholmen"
   },
   {
     "from": "centralen",
     "to": "kungsparken",
-    "via": "längs kanalen",
-    "geometry": [
-      [
-        55.6091712,
-        12.9998411
-      ],
-      [
-        55.6036751,
-        12.9928576
-      ]
-    ]
+    "via": "längs kanalen"
   },
   {
     "from": "kungsparken",
     "to": "slottsparken",
-    "via": "längs kanalen",
-    "geometry": [
-      [
-        55.6036751,
-        12.9928576
-      ],
-      [
-        55.601299,
-        12.9890323
-      ]
-    ]
+    "via": "längs kanalen"
   },
   {
     "from": "slottsparken",
@@ -673,17 +583,7 @@
   {
     "from": "centralen",
     "to": "rorsjoparken",
-    "via": "genom Rörsjöstaden",
-    "geometry": [
-      [
-        55.6091712,
-        12.9998411
-      ],
-      [
-        55.6051401,
-        13.0177931
-      ]
-    ]
+    "via": "genom Rörsjöstaden"
   },
   {
     "from": "rorsjoparken",
@@ -954,17 +854,7 @@
   {
     "from": "beijers",
     "to": "kirseberg",
-    "via": "upp för Kirsebergsbacken",
-    "geometry": [
-      [
-        55.6104587,
-        13.0500313
-      ],
-      [
-        55.609,
-        13.0359
-      ]
-    ]
+    "via": "upp för Kirsebergsbacken"
   },
   {
     "from": "varnhem",
@@ -1240,32 +1130,12 @@
   {
     "from": "varnhem",
     "to": "nobeltorget",
-    "via": "längs Nobelvägen",
-    "geometry": [
-      [
-        55.6055276,
-        13.0228933
-      ],
-      [
-        55.5917552,
-        13.0198543
-      ]
-    ]
+    "via": "längs Nobelvägen"
   },
   {
     "from": "centralen",
     "to": "triangeln",
-    "via": "längs Södra Förstadsgatan",
-    "geometry": [
-      [
-        55.6091712,
-        12.9998411
-      ],
-      [
-        55.5932928,
-        13.0010364
-      ]
-    ]
+    "via": "längs Södra Förstadsgatan"
   },
   {
     "from": "kungsparken",
@@ -1527,47 +1397,17 @@
   {
     "from": "folketspark",
     "to": "mollan",
-    "via": "genom kvarteren vid Möllan",
-    "geometry": [
-      [
-        55.5933696,
-        13.0138606
-      ],
-      [
-        55.5916612,
-        13.0081207
-      ]
-    ]
+    "via": "genom kvarteren vid Möllan"
   },
   {
     "from": "folketspark",
     "to": "nobeltorget",
-    "via": "längs Nobelvägen",
-    "geometry": [
-      [
-        55.5933696,
-        13.0138606
-      ],
-      [
-        55.5917552,
-        13.0198543
-      ]
-    ]
+    "via": "längs Nobelvägen"
   },
   {
     "from": "mollan",
     "to": "triangeln",
-    "via": "längs Bergsgatan",
-    "geometry": [
-      [
-        55.5916612,
-        13.0081207
-      ],
-      [
-        55.5932928,
-        13.0010364
-      ]
-    ]
+    "via": "längs Bergsgatan"
   },
   {
     "from": "mollan",
@@ -1874,32 +1714,12 @@
   {
     "from": "sodervarn",
     "to": "vattentornet",
-    "via": "över Södervärns torg",
-    "geometry": [
-      [
-        55.5868038,
-        13.0085354
-      ],
-      [
-        55.58798,
-        13.01174
-      ]
-    ]
+    "via": "över Södervärns torg"
   },
   {
     "from": "sodervarn",
     "to": "karlskronaplan",
-    "via": "längs Ystadvägen",
-    "geometry": [
-      [
-        55.5868038,
-        13.0085354
-      ],
-      [
-        55.5938629,
-        13.018862
-      ]
-    ]
+    "via": "längs Ystadvägen"
   },
   {
     "from": "karlskronaplan",
@@ -1990,17 +1810,7 @@
   {
     "from": "pildammsparken",
     "to": "stadion",
-    "via": "längs Stadiongatan",
-    "geometry": [
-      [
-        55.5905869,
-        12.991573
-      ],
-      [
-        55.5859136,
-        12.9893554
-      ]
-    ]
+    "via": "längs Stadiongatan"
   },
   {
     "from": "pildammsparken",

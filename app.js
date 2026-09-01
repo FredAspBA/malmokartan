@@ -99,6 +99,13 @@ function populateCyklaSelects() {
     .map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   fromSel.innerHTML = `<option value="">Från…</option>${options}`;
   toSel.innerHTML = `<option value="">Till…</option>${options}`;
+  // Rebygger man listan medan användaren redan valt start/mål (t.ex. ett
+  // landmärke läggs till eller tas bort mitt i ett Cykla-val) nollställs
+  // annars de synliga selecten till "Från…"/"Till…" trots att
+  // cyklaState.from/to fortfarande är satta — återställ valet så listan
+  // inte visuellt tappar det pågående valet.
+  fromSel.value = cyklaState.from || '';
+  toSel.value = cyklaState.to || '';
 }
 
 function clearRouteLines() {
@@ -307,6 +314,7 @@ function removeLandmark(id) {
   state.places = state.places.filter(p => p.id !== id);
   saveCustomLandmarks(customLandmarks, window.localStorage);
   renderLandmarkList();
+  populateCyklaSelects();
 }
 
 document.getElementById('lmForm').addEventListener('submit', e => {
@@ -327,6 +335,7 @@ function handlePlacingClick(e) {
   saveCustomLandmarks(customLandmarks, window.localStorage);
   renderLandmarkMarkers();
   renderLandmarkList();
+  populateCyklaSelects();
   placingName = null;
   document.getElementById('placingHint').style.display = 'none';
 }

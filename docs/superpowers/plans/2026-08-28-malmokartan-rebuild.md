@@ -114,6 +114,14 @@ test('buildGraph räknar meterlängd längs given geometri, inte fågelvägen', 
   const straight = haversineMeters(55.60, 13.00, 55.61, 13.00);
   assert.ok(graph.a[0].meters > straight, 'zigzag-geometrin ska vara längre än fågelvägen');
 });
+
+test('buildGraph använder fågelväg * detour när geometry saknas helt (rak-linje-reträtt)', () => {
+  const noGeometry = [{ from: 'a', to: 'b', via: 'test' }]; // ingen geometry-nyckel alls
+  const graph = buildGraph(places, noGeometry);
+  const straight = haversineMeters(places[0].lat, places[0].lon, places[1].lat, places[1].lon);
+  assert.ok(Math.abs(graph.a[0].meters - straight * 1.15) < 0.01,
+    'utan geometry ska meters bli exakt fågelväg * 1.15, inte råkas matcha en 2-punkters "geometri"');
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -294,7 +302,7 @@ export function routeLabel(route, refRoute, byId) {
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `node --test test.mjs`
-Expected: All 7 tests PASS.
+Expected: All 8 tests PASS.
 
 - [ ] **Step 5: Commit**
 
@@ -463,7 +471,7 @@ test('places.json innehåller 30 unika platser inom Malmös bounding box', () =>
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `node --test test.mjs`
-Expected: All previous tests plus this new one PASS (8 total).
+Expected: All previous tests plus this new one PASS (9 total).
 
 - [ ] **Step 5: Commit**
 
@@ -623,11 +631,15 @@ function nearestNode(pointOf, lat, lon) {
   return { id: best, dist: bestDist };
 }
 
+// Returnerar riktig geometri (array), eller null om vi bara har en rak
+// linje att erbjuda. null (inte en 2-punkters rak linje) är avsiktligt:
+// buildGraph i routing.mjs avgör om en kant ska prissättas som fågelväg *
+// detour just genom att geometrin saknas — en riktig men råkat-vara-kort
+// gatumatchning får aldrig se ut som en rak-linje-reträtt.
 async function geometryForEdge(edge) {
   const from = byId[edge.from], to = byId[edge.to];
   if (!from || !to) throw new Error(`Okänd plats i kant ${edge.from}->${edge.to}`);
   const streetName = stripPrep(edge.via);
-  const straight = [[from.lat, from.lon], [to.lat, to.lon]];
   const straightM = haversineMeters(from.lat, from.lon, to.lat, to.lon);
 
   let ways;
@@ -635,11 +647,11 @@ async function geometryForEdge(edge) {
     ways = await fetchWays(streetName, bboxFor(from, to));
   } catch (err) {
     console.warn(`  ! Overpass-fel för ${edge.from}->${edge.to} (${streetName}): ${err.message} — rak linje`);
-    return straight;
+    return null;
   }
   if (!ways.length) {
     console.warn(`  ! Ingen väg vid namn "${streetName}" hittades nära ${edge.from}->${edge.to} — rak linje`);
-    return straight;
+    return null;
   }
 
   const { graph, pointOf } = buildWayGraph(ways);
@@ -651,7 +663,7 @@ async function geometryForEdge(edge) {
   const route = shortestPath(graph, fromNode.id, toNode.id);
   if (!route) {
     console.warn(`  ! "${streetName}"-segmenten hänger inte ihop mellan ${edge.from} och ${edge.to} (närmast: ${Math.round(fromNode.dist)}m/${Math.round(toNode.dist)}m) — rak linje`);
-    return straight;
+    return null;
   }
 
   // Foga ihop den riktiga platskoordinaten i varje ände med gatans geometri
@@ -666,7 +678,7 @@ async function geometryForEdge(edge) {
   const totalM = polylineMeters(geometry);
   if (totalM > straightM * 3) {
     console.warn(`  ! Slutlig väg via "${streetName}" (inkl. anslutning till platserna) är ${Math.round(totalM)}m, mer än 3x de ${Math.round(straightM)}m fågelvägen — rak linje`);
-    return straight;
+    return null;
   }
 
   return geometry;
@@ -676,8 +688,8 @@ const out = [];
 for (const edge of edgesSrc) {
   process.stdout.write(`${edge.from} -> ${edge.to} (${edge.via})... `);
   const geometry = await geometryForEdge(edge);
-  console.log(`${geometry.length} punkter`);
-  out.push({ ...edge, geometry });
+  console.log(geometry ? `${geometry.length} punkter` : 'rak linje (ingen geometri sparad)');
+  out.push(geometry ? { ...edge, geometry } : { ...edge });
   await new Promise(r => setTimeout(r, 1100)); // Overpass fair-use: max ~1 req/s
 }
 
@@ -703,7 +715,11 @@ test('routes.json refererar bara riktiga platser och har giltig geometri', () =>
   for (const r of routes) {
     assert.ok(ids.has(r.from), `okänd from-plats "${r.from}"`);
     assert.ok(ids.has(r.to), `okänd to-plats "${r.to}"`);
-    assert.ok(Array.isArray(r.geometry) && r.geometry.length >= 2, `${r.from}->${r.to}: ogiltig geometri`);
+    // geometry saknas helt för rak-linje-reträtter (se prep-routes.mjs) —
+    // det är avsiktligt, inte en ogiltig kant. Finns geometry ska den
+    // åtminstone ha två punkter.
+    assert.ok(r.geometry === undefined || (Array.isArray(r.geometry) && r.geometry.length >= 2),
+      `${r.from}->${r.to}: ogiltig geometri`);
   }
 });
 
@@ -719,7 +735,7 @@ test('varje plats i places.json nås av minst en kant i routes.json', () => {
 - [ ] **Step 5: Run tests to verify they pass**
 
 Run: `node --test test.mjs`
-Expected: All previous tests plus these 2 new ones PASS (10 total).
+Expected: All previous tests plus these 2 new ones PASS (11 total).
 
 - [ ] **Step 6: Commit**
 
@@ -1014,12 +1030,15 @@ const cyklaState = { from: null, to: null, routeLines: [], selectedIndex: 0 };
 // Anropas både vid start och varje gång en egen landmärke läggs till/tas
 // bort (Task 7), så listan är aktuell utan att sidan behöver laddas om.
 // Återställer det som redan var valt, så en pågående ruttplanering inte
-// tappar sitt val bara för att listan byggs om.
+// tappar sitt val bara för att listan byggs om. Egna landmärken (kategori
+// "egen") saknar helt cykelnät (inga kanter i routes.json) — de utesluts
+// härifrån så att de aldrig kan väljas och ge det falska svaret "ingen
+// cykelväg hittades" mellan en riktig plats och ens eget landmärke.
 function populateCyklaSelects() {
   const fromSel = document.getElementById('fromSel');
   const toSel = document.getElementById('toSel');
   const options = state.places
-    .slice()
+    .filter(p => p.category !== 'egen')
     .sort((a, b) => a.name.localeCompare(b.name, 'sv'))
     .map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   fromSel.innerHTML = `<option value="">Från…</option>${options}`;
@@ -1106,10 +1125,12 @@ document.getElementById('toSel').addEventListener('change', e => { cyklaState.to
 
 document.addEventListener('malmokartan:place-click', ev => {
   if (state.mode !== 'cykla') return;
+  if (ev.detail.category === 'egen') return; // inget cykelnät till egna landmärken, se populateCyklaSelects
   if (!cyklaState.from || (cyklaState.from && cyklaState.to)) {
     cyklaState.from = ev.detail.id; cyklaState.to = null;
     document.getElementById('fromSel').value = ev.detail.id;
     document.getElementById('toSel').value = '';
+    clearRouteDisplay(); // annars blir en tidigare rutt kvar på kartan/panelen när man börjar om via klick
   } else {
     cyklaState.to = ev.detail.id;
     document.getElementById('toSel').value = ev.detail.id;
@@ -1347,7 +1368,9 @@ Expected: FAIL — `landmarks.mjs` does not exist.
 
 ```js
 // Ren, injectable-storage-logik för egna landmärken — testbar i Node utan
-// en riktig localStorage. app.js anropar dessa med window.localStorage.
+// en riktig localStorage. app.js anropar dessa med en säker wrapper runt
+// window.localStorage (safeStorage(), se app.js) eftersom även åtkomsten
+// till window.localStorage kan kasta i vissa webbläsarlägen.
 const KEY = 'malmokartan-landmarks-v1';
 let counter = 0;
 
@@ -1410,7 +1433,17 @@ Append to `app.js`:
 ```js
 import { loadCustomLandmarks, saveCustomLandmarks } from './landmarks.mjs';
 
-let customLandmarks = loadCustomLandmarks(window.localStorage);
+// window.localStorage kan kasta redan vid ÅTKOMST, inte bara vid get/set
+// (t.ex. Chrome med "blockera all cookiedata", eller gammal Safari i
+// privat läge) — landmarks.mjs skyddar bara get/setItem, så vi skyddar
+// själva åtkomsten här. Utan detta kraschar hela modulen redan innan
+// main() hinner köra, vilket ger en helt blank sida istället för en app
+// som bara saknar sparade landmärken.
+function safeStorage() {
+  try { return window.localStorage; } catch { return { getItem: () => null, setItem: () => {} }; }
+}
+
+let customLandmarks = loadCustomLandmarks(safeStorage());
 let placingName = null;
 
 function renderLandmarkMarkers() {
@@ -1441,7 +1474,7 @@ function removeLandmark(id) {
   if (marker) { state.map.removeLayer(marker); state.markers.delete(id); }
   customLandmarks = customLandmarks.filter(l => l.id !== id);
   state.places = state.places.filter(p => p.id !== id);
-  saveCustomLandmarks(customLandmarks, window.localStorage);
+  saveCustomLandmarks(customLandmarks, safeStorage());
   renderLandmarkList();
   populateCyklaSelects();
 }
@@ -1461,7 +1494,7 @@ function handlePlacingClick(e) {
   const newLandmark = { id: `egen-${Date.now()}`, name: placingName, lat: e.latlng.lat, lon: e.latlng.lng, category: 'egen', fact: 'Ditt eget landmärke.', photo: 'placeholder.svg' };
   customLandmarks.push(newLandmark);
   state.places.push(newLandmark);
-  saveCustomLandmarks(customLandmarks, window.localStorage);
+  saveCustomLandmarks(customLandmarks, safeStorage());
   renderLandmarkMarkers();
   renderLandmarkList();
   populateCyklaSelects();
@@ -1558,7 +1591,7 @@ node tools/prep-routes.mjs      # routes.json
 - [ ] **Step 2: Run the full test suite one last time**
 
 Run: `node --test test.mjs`
-Expected: All tests PASS (13 total: 7 from Task 1, 1 from Task 2, 2 from Task 3, 3 from Task 7).
+Expected: All tests PASS (14 total: 8 from Task 1, 1 from Task 2, 2 from Task 3, 3 from Task 7, plus the post-launch final-review fix wave's addition).
 
 - [ ] **Step 3: Commit the README**
 

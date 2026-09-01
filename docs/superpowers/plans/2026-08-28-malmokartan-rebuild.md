@@ -1011,6 +1011,10 @@ import { kShortest, meaningfulRoutes, routeLabel } from './routing.mjs';
 
 const cyklaState = { from: null, to: null, routeLines: [], selectedIndex: 0 };
 
+// Anropas både vid start och varje gång en egen landmärke läggs till/tas
+// bort (Task 7), så listan är aktuell utan att sidan behöver laddas om.
+// Återställer det som redan var valt, så en pågående ruttplanering inte
+// tappar sitt val bara för att listan byggs om.
 function populateCyklaSelects() {
   const fromSel = document.getElementById('fromSel');
   const toSel = document.getElementById('toSel');
@@ -1020,6 +1024,8 @@ function populateCyklaSelects() {
     .map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   fromSel.innerHTML = `<option value="">Från…</option>${options}`;
   toSel.innerHTML = `<option value="">Till…</option>${options}`;
+  fromSel.value = cyklaState.from || '';
+  toSel.value = cyklaState.to || '';
 }
 
 function clearRouteLines() {
@@ -1437,6 +1443,7 @@ function removeLandmark(id) {
   state.places = state.places.filter(p => p.id !== id);
   saveCustomLandmarks(customLandmarks, window.localStorage);
   renderLandmarkList();
+  populateCyklaSelects();
 }
 
 document.getElementById('lmForm').addEventListener('submit', e => {
@@ -1457,6 +1464,7 @@ function handlePlacingClick(e) {
   saveCustomLandmarks(customLandmarks, window.localStorage);
   renderLandmarkMarkers();
   renderLandmarkList();
+  populateCyklaSelects();
   placingName = null;
   document.getElementById('placingHint').style.display = 'none';
 }

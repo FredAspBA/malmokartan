@@ -104,5 +104,5 @@ if (failed.length) {
   console.error('Lägg till dem manuellt (slå upp koordinaterna för hand) innan du går vidare.');
 }
 
-writeFileSync(new URL('../places.json', import.meta.url), JSON.stringify(places, null, 2));
+writeFileSync(new URL('../places.json', import.meta.url), JSON.stringify(places, null, 2) + '\n');
 console.log(`\nSkrev places.json med ${places.length} platser.`);

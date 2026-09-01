@@ -109,9 +109,13 @@ test('routes.json refererar bara riktiga platser och har giltig geometri', () =>
     assert.ok(ids.has(r.from), `okänd from-plats "${r.from}"`);
     assert.ok(ids.has(r.to), `okänd to-plats "${r.to}"`);
     // geometry saknas helt för rak-linje-reträtter (se prep-routes.mjs) —
-    // det är avsiktligt, inte en ogiltig kant. Finns geometry ska den
-    // åtminstone ha två punkter.
-    assert.ok(r.geometry === undefined || (Array.isArray(r.geometry) && r.geometry.length >= 2),
+    // det är avsiktligt, inte en ogiltig kant. Finns geometry ska den ha
+    // minst 3 punkter — den ihopfogade geometrin är alltid [från, ...minst
+    // två gatupunkter, till], så en riktig träff kan aldrig bli kortare än
+    // 4 punkter. En framtida regression tillbaka till en rak 2-punkters
+    // "geometri" (den ursprungliga bugg som ledde till att geometry helt
+    // utelämnas vid reträtt, se prep-routes.mjs) ska fångas här.
+    assert.ok(r.geometry === undefined || (Array.isArray(r.geometry) && r.geometry.length >= 3),
       `${r.from}->${r.to}: ogiltig geometri`);
   }
 });

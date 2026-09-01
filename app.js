@@ -8,7 +8,6 @@ const CAT_COLOR = {
 const state = {
   mode: 'utforska',
   places: [],
-  routes: [],
   graph: null,
   map: null,
   markers: new Map() // plats-id -> L.CircleMarker
@@ -20,7 +19,8 @@ async function loadData() {
     fetch('routes.json').then(r => r.json())
   ]);
   state.places = places;
-  state.routes = routes;
+  // routes hålls bara lokalt för att bygga grafen — inget läser state.routes
+  // efteråt, grafen (state.graph) är det enda senare kod behöver.
   state.graph = buildGraph(places, routes);
 }
 
@@ -148,7 +148,9 @@ function renderRouteResult(routes) {
       <b>${label}</b> — ${km} km</button>`;
   }).join('');
   optsEl.querySelectorAll('.route-opt').forEach(btn => {
-    btn.addEventListener('click', () => { cyklaState.selectedIndex = Number(btn.dataset.i); drawRoutes(routes); renderRouteResult(routes); });
+    // renderRouteResult ritar redan om linjerna i sin sista rad — ett extra
+    // drawRoutes() här skulle bara göra samma jobb två gånger per klick.
+    btn.addEventListener('click', () => { cyklaState.selectedIndex = Number(btn.dataset.i); renderRouteResult(routes); });
   });
 
   const chosen = routes[cyklaState.selectedIndex];
@@ -377,11 +379,10 @@ async function main() {
     return;
   }
   // Egna landmärken vävs in i state.places så de dyker upp i quizets
-  // frågepool (se Interfaces-noten i task-briefen) och blir valbara
-  // start/mål-alternativ i Cykla. De saknar kanter i state.graph, så
-  // kShortest/shortestPath returnerar bara en tom lista om man väljer ett
-  // eget landmärke som start eller mål i Cykla — inget krasch, bara
-  // "Ingen cykelväg hittades" (verifierat mot routing.mjs).
+  // frågepool och som markörer på kartan/i Utforska. De utesluts uttryckligen
+  // från Cykla (se populateCyklaSelects och place-click-lyssnaren ovan) —
+  // de saknar kanter i state.graph, så de skulle bara ge ett falskt
+  // "Ingen cykelväg hittades" om de gick att välja där.
   state.places.push(...customLandmarks);
   renderMarkers();
   renderLandmarkMarkers();
@@ -390,5 +391,3 @@ async function main() {
 }
 
 main();
-
-export { state, byId, renderPlaceCard, CAT_COLOR };

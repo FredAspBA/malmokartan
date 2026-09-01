@@ -142,5 +142,5 @@ for (const edge of edgesSrc) {
   await new Promise(r => setTimeout(r, 1100)); // Overpass fair-use: max ~1 req/s
 }
 
-writeFileSync(new URL('../routes.json', import.meta.url), JSON.stringify(out, null, 2));
+writeFileSync(new URL('../routes.json', import.meta.url), JSON.stringify(out, null, 2) + '\n');
 console.log(`\nSkrev routes.json med ${out.length} kanter.`);
